@@ -170,3 +170,4 @@ curl -s http://scalable-nginx-alb-1730992489.us-east-1.elb.amazonaws.com/metrics
 *   **Configuration Manager**: Zsh / Bash / Node.js
 *   **Styling**: Premium Vanilla CSS (Responsive, Dark Theme)
 # cloudscale-nginx-aws
+# cloudscale-nginx-aws
