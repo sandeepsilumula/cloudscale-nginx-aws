@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Highly scalable AWS-hosted Nginx webpage showcase. Designed for high availability, performance, and modern aesthetics.">
+    <title>Scalable AWS Architecture Showcase</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="background-decorations">
+        <div class="glow-orb orb-1"></div>
+        <div class="glow-orb orb-2"></div>
+        <div class="glow-orb orb-3"></div>
+    </div>
+
+    <main class="dashboard-container" id="main-dashboard">
+        <header class="dashboard-header">
+            <div class="badge" id="status-badge">
+                <span class="pulse-dot"></span>
+                AWS Infrastructure: Active
+            </div>
+            <h1 class="main-title">Hello from a Scalable AWS Architecture!</h1>
+            <p class="subtitle">An optimized, containerized Nginx application running in a high-availability cloud environment.</p>
+        </header>
+
+        <section class="metrics-grid">
+            <div class="metric-card" id="card-status">
+                <h3>Server Status</h3>
+                <div class="metric-value text-gradient-green">Healthy</div>
+                <p class="metric-label">HTTP 200 OK via Nginx</p>
+            </div>
+            <div class="metric-card" id="card-latency">
+                <h3>Response Latency</h3>
+                <div class="metric-value" id="latency-val">12ms</div>
+                <p class="metric-label">CloudFront Edge Cached</p>
+            </div>
+            <div class="metric-card" id="card-scale">
+                <h3>Replica Count</h3>
+                <div class="metric-value text-gradient-blue" id="replica-val">3 / 10</div>
+                <p class="metric-label">Auto Scaling Enabled</p>
+            </div>
+        </section>
+
+        <section class="architecture-diagram-card">
+            <h3>Active Topography</h3>
+            <div class="topography-container">
+                <div class="node-item internet">
+                    <div class="node-icon">🌐</div>
+                    <span>Client</span>
+                </div>
+                <div class="flow-line"></div>
+                <div class="node-item load-balancer">
+                    <div class="node-icon">⚖️</div>
+                    <span>AWS ALB</span>
+                </div>
+                <div class="flow-line"></div>
+                <div class="node-item nginx-service">
+                    <div class="node-icon">⚙️</div>
+                    <span>Nginx Pods</span>
+                </div>
+            </div>
+        </section>
+
+        <footer class="dashboard-footer">
+            <p>Engineered with Google Antigravity &bull; Proactive Observability Enabled</p>
+        </footer>
+    </main>
+
+    <script>
+        // Simulate live metrics update for realistic dynamic behavior
+        const latencyElement = document.getElementById('latency-val');
+        const replicaElement = document.getElementById('replica-val');
+
+        setInterval(() => {
+            const randomLatency = Math.floor(Math.random() * 8) + 8;
+            latencyElement.innerText = `${randomLatency}ms`;
+        }, 3000);
+
+        setInterval(() => {
+            const hour = new Date().getHours();
+            // Scale replicas up during simulated peak hours (e.g. 12 PM - 6 PM)
+            const baseReplicas = (hour >= 12 && hour <= 18) ? 6 : 3;
+            const fluctuation = Math.floor(Math.random() * 2);
+            replicaElement.innerText = `${baseReplicas + fluctuation} / 10`;
+        }, 10000);
+    </script>
+</body>
+</html>

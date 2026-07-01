@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: scalable-nginx-deployment
+  labels:
+    app: scalable-nginx
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: scalable-nginx
+  template:
+    metadata:
+      labels:
+        app: scalable-nginx
+    spec:
+      containers:
+      - name: nginx-web
+        image: 123456789012.dkr.ecr.us-east-1.amazonaws.com/scalable-nginx:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
+          name: http
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "100m"
+          limits:
+            memory: "128Mi"
+            cpu: "250m"
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 80
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /healthz
+            port: 80
+          initialDelaySeconds: 5
+          periodSeconds: 10
