@@ -1,26 +1,25 @@
-# Scalable AWS Nginx Webpage Architecture
+# AWS Nginx Setup with Auto Scaling
 
-A production-grade, highly scalable web application hosting architecture built on Amazon Web Services (AWS). This system runs a custom, modern containerized Nginx web server across multiple private subnets behind an Application Load Balancer (ALB), automatically scaling in response to CPU load.
+AWS infrastructure running containerized Nginx behind an ALB. Automatically scales up/down based on CPU load. 
 
-## Visual Showcase
+## Visuals
 
-### Web Dashboard Interface
+### Web Dashboard
 ![Web Dashboard Showcase](assets/dashboard_screenshot.jpg)
 
-### Terminal Verification
+### CLI Check
 ![Terminal Diagnostics Output](assets/terminal_verification.jpg)
 
-
-## Features
-*   **Infrastructure as Code (IaC)**: Fully provisioned via Terraform, establishing a secure AWS VPC, public/private subnet segmentation, Internet/NAT Gateways, and ALB.
-*   **Dynamic Auto Scaling**: Configured with an AWS Auto Scaling Group (ASG) utilizing a **Target Tracking policy targeting 70% average CPU usage** (supporting 2 to 10 instances).
-*   **Multi-Stage Dockerization**: Leverages multi-stage Docker builds to validate asset content before packaging the final optimized Nginx production server.
-*   **Observability & Telemetry**: Native Nginx performance metric endpoints (`/metrics`) and Kubernetes-compatible health checks (`/healthz`).
-*   **CI/CD Integration**: Out-of-the-box GitHub Actions workflow managing automatic syntax validations, ECR container publishing, and Terraform deployment.
+## Specs
+* **IaC**: VPC, subnet division, NAT gateway, ALB. Provisioned via Terraform.
+* **Auto Scaling**: ASG scales from 2 to 10 instances. Target policy set to 70% CPU limit.
+* **Docker**: Two-stage build validating assets before copying to the final Nginx container.
+* **Monitoring**: Metrics available at `/metrics` and health checks at `/healthz`.
+* **CI/CD**: GitHub Actions pipeline for checks, pushing to ECR, and running Terraform apply.
 
 ---
 
-## System Architecture
+## Architecture
 
 ```mermaid
 graph TD
@@ -50,42 +49,40 @@ graph TD
 │   └── workflows/
 │       └── deploy.yml          # GitHub Actions CI/CD Pipeline
 ├── Dockerfile                  # Multi-stage Docker file
-├── nginx.conf                  # Custom high-performance Nginx configuration
-├── package.json                # Project script commands and validation configs
-├── verify_production.sh        # Copy-pasteable terminal verification script
+├── nginx.conf                  # Nginx configuration
+├── package.json                # Validation scripts and config
+├── verify_production.sh        # Verification script
 ├── src/
-│   ├── index.html              # Custom landing page web page
-│   └── styles.css              # Premium CSS stylesheet
+│   ├── index.html              # Main HTML page
+│   └── styles.css              # Custom CSS stylesheet
 ├── k8s/
-│   ├── deployment.yaml         # Kubernetes pod deployment rules
-│   ├── service.yaml            # Cluster Service configurations
-│   ├── ingress.yaml            # Application Load Balancer bindings
-│   └── hpa.yaml                # Horizontal Pod Autoscaler scaling configuration
+│   ├── deployment.yaml         # K8s deployment
+│   ├── service.yaml            # Cluster Service config
+│   ├── ingress.yaml            # Ingress config (ALB bindings)
+│   └── hpa.yaml                # Autoscaling config
 └── terraform/
-    ├── main.tf                 # Core VPC, ALB, and ASG resource configurations
-    ├── variables.tf            # Parameterized infrastructure inputs
-    ├── outputs.tf              # DNS endpoint outputs
-    └── providers.tf            # AWS and provider definitions
+    ├── main.tf                 # VPC, ALB, ASG definitions
+    ├── variables.tf            # Config inputs
+    ├── outputs.tf              # DNS endpoint output
+    └── providers.tf            # AWS & local providers
 ```
 
 ---
 
-## Local Verification & Emulation
+## Testing Locally
 
-Since cloud deployments can take time, this project includes a local Node.js sandbox that emulates Nginx and AWS endpoints (Port `8080`).
+We have a Node.js sandbox mimicking the Nginx/AWS APIs on port `8080`.
 
-### 1. Run Workspace Linting
-Validates file structure, configurations, and observability hooks:
+### 1. Run Lints and Tests
 ```bash
 npm run lint && npm run test
 ```
 
-### 2. Launch Local Mock Sandbox
-Test the web pages and telemetry endpoints locally:
+### 2. Start Local Mock Server
 ```bash
 node .gemini/antigravity-cli/brain/e126aaa6-754e-4258-bbed-5da887918436/scratch/sandbox_test.js
 ```
-Query endpoints on another terminal tab:
+Query local endpoints in another shell window:
 ```bash
 curl -s http://localhost:8080/
 curl -s http://localhost:8080/healthz
@@ -94,80 +91,74 @@ curl -s http://localhost:8080/metrics
 
 ---
 
-## Infrastructure Deployment (AWS)
+## Deploying to AWS
 
 ### Prerequisites
-*   AWS CLI installed and authenticated with your target AWS Account.
-*   Terraform CLI (`>= 1.5.0`) installed.
+* AWS CLI installed and configured.
+* Terraform (`>= 1.5.0`).
 
-### 1. Initialize and Validate Configurations
+### 1. Init & Validate
 ```bash
 cd terraform
 terraform init
 terraform validate
 ```
 
-### 2. Preview Infrastructure Plan
+### 2. View Plan
 ```bash
 terraform plan
 ```
 
-### 3. Deploy to AWS
-Apply the configuration (takes ~3 minutes to provision VPC, NAT Gateway, ALB, and ASG):
+### 3. Deploy
+This builds the VPC, NAT, ALB, and ASG. Takes about 3 mins.
 ```bash
 terraform apply -auto-approve
 ```
 
 ---
 
-## Production Verification Guide
+## Prod Checks
 
-A copy-pasteable script is located in the root of the project. Simply run it to run full diagnostic check suites:
-
+Use the check script in the root to test the active deployment:
 ```bash
 bash verify_production.sh
 ```
 
-### Step-by-Step CLI Diagnostics
+### Manual CLI Tests
 
-#### A. Query Server Accessibility
-Check if the ALB is resolving and returning the landing page:
+#### A. Web Page Status
 ```bash
 curl -s -o /dev/null -w "HTTP Status: %{http_code}\n" http://scalable-nginx-alb-1730992489.us-east-1.elb.amazonaws.com/
 ```
 
-#### B. Check Health Check Endpoint
-Query the Load Balancer target group endpoint:
+#### B. Health Endpoint Check
 ```bash
 curl -s http://scalable-nginx-alb-1730992489.us-east-1.elb.amazonaws.com/healthz
 ```
-*Expected output: `OK`*
+*Response should be: `OK`*
 
-#### C. Inspect Telemetry Statistics
-Query Nginx active connection metrics:
+#### C. Get Metrics
 ```bash
 curl -s http://scalable-nginx-alb-1730992489.us-east-1.elb.amazonaws.com/metrics
 ```
 
-#### D. Verify Self-Healing (EC2 Failover)
-1.  List the running instances:
+#### D. Failover Test
+1. List running instances:
     ```bash
     aws ec2 describe-instances --filters "Name=tag:Name,Values=scalable-nginx-worker" "Name=instance-state-name,Values=running" --query "Reservations[*].Instances[*].[InstanceId,State.Name]" --output table
     ```
-2.  Terminate one instance:
+2. Kill one VM:
     ```bash
     aws ec2 terminate-instances --instance-ids <INSTANCE_ID>
     ```
-3.  Query the server again. The webpage remains online because the ALB redirects traffic to the healthy standby instance. Within 3 minutes, the ASG will boot a new healthy instance to restore desired capacity.
+3. Test curl again. The ALB routes request to the remaining instance. ASG launches a replacement VM in ~3 minutes.
 
 ---
 
-## Technology Stack
-*   **Hosting Platform**: Amazon Web Services (AWS)
-*   **Infrastructure Automation**: Terraform
-*   **Web Server**: Nginx
-*   **Containerization**: Docker
-*   **Configuration Manager**: Zsh / Bash / Node.js
-*   **Styling**: Premium Vanilla CSS (Responsive, Dark Theme)
-# cloudscale-nginx-aws
-# cloudscale-nginx-aws
+## Tech Stack
+* AWS
+* Terraform
+* Nginx
+* Docker
+* Bash / Node.js
+* CSS (responsive dark theme)
