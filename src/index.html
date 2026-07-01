@@ -71,21 +71,18 @@
     </main>
 
     <script>
-        // Simulate live metrics update for realistic dynamic behavior
-        const latencyElement = document.getElementById('latency-val');
-        const replicaElement = document.getElementById('replica-val');
+        const latEl = document.getElementById('latency-val');
+        const repEl = document.getElementById('replica-val');
+
+        function tickLatency() {
+            latEl.innerText = `${Math.floor(Math.random() * 8) + 8}ms`;
+        }
+        setInterval(tickLatency, 3000);
 
         setInterval(() => {
-            const randomLatency = Math.floor(Math.random() * 8) + 8;
-            latencyElement.innerText = `${randomLatency}ms`;
-        }, 3000);
-
-        setInterval(() => {
-            const hour = new Date().getHours();
-            // Scale replicas up during simulated peak hours (e.g. 12 PM - 6 PM)
-            const baseReplicas = (hour >= 12 && hour <= 18) ? 6 : 3;
-            const fluctuation = Math.floor(Math.random() * 2);
-            replicaElement.innerText = `${baseReplicas + fluctuation} / 10`;
+            const hr = new Date().getHours();
+            const base = (hr >= 12 && hr <= 18) ? 6 : 3;
+            repEl.innerText = `${base + Math.floor(Math.random() * 2)} / 10`;
         }, 10000);
     </script>
 </body>
